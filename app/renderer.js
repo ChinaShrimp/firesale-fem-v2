@@ -1,5 +1,5 @@
 const path = require("path");
-const { remote, ipcRenderer } = require("electron");
+const { remote, ipcRenderer, shell } = require("electron");
 
 const mainProcess = remote.require("./main.js");
 const currentWindow = remote.getCurrentWindow();
@@ -92,7 +92,22 @@ const updateUserInterface = (isEdited) => {
 
   saveMarkdownButton.disabled = !isEdited;
   revertButton.disabled = !isEdited;
+
+  showFileButton.disabled = !filePath;
+  openInDefaultButton.disabled = !filePath;
 };
+
+showFileButton.addEventListener("click", () => {
+  if (!filePath) return;
+
+  shell.showItemInFolder(filePath);
+});
+
+openInDefaultButton.addEventListener("click", () => {
+  if (!filePath) return;
+
+  shell.openItem(filePath);
+});
 
 openFileButton.addEventListener("click", () => {
   dispatchToMainProcess("openFile", {}, (file, content) => {
