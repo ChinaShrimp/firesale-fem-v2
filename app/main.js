@@ -1,5 +1,14 @@
 const fs = require("fs");
-const { app, BrowserWindow, dialog } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  dialog,
+  Menu
+} = require("electron");
+
+const {
+  applicationMenu
+} = require("./menu");
 
 let mainWindow = null;
 
@@ -7,6 +16,8 @@ app.on("ready", () => {
   mainWindow = new BrowserWindow({
     show: false,
   });
+
+  Menu.setApplicationMenu(applicationMenu);
 
   mainWindow.loadFile(`${__dirname}/index.html`);
 
@@ -18,8 +29,13 @@ app.on("ready", () => {
 console.log("Starting up...");
 
 exports.dispatch = (action) => {
-  const { type, payload } = action;
-  const { replyTopic } = payload;
+  const {
+    type,
+    payload
+  } = action;
+  const {
+    replyTopic
+  } = payload;
   const result = null;
 
   const cb = (...args) => {
@@ -50,11 +66,13 @@ exports.dispatch = (action) => {
   }
 };
 
-const getFileFromUser = ({ properties, filters }, cb) => {
+const getFileFromUser = ({
+  properties,
+  filters
+}, cb) => {
   const files = dialog.showOpenDialog(mainWindow, {
     properties: properties || ["openFile"],
-    filters: filters || [
-      {
+    filters: filters || [{
         name: "Markdown Files",
         extensions: ["md", "markdown"],
       },
@@ -79,7 +97,9 @@ const getFileFromUser = ({ properties, filters }, cb) => {
   cb(file, content);
 };
 
-const openFileFromUser = ({ file }, cb) => {
+const openFileFromUser = ({
+  file
+}, cb) => {
   if (!file) cb();
 
   const content = fs.readFileSync(file).toString();
@@ -89,16 +109,17 @@ const openFileFromUser = ({ file }, cb) => {
   cb(file, content);
 };
 
-const saveHtmlFileFromUser = ({ file, content }, cb) => {
+const saveHtmlFileFromUser = ({
+  file,
+  content
+}, cb) => {
   let savedHtmlFile = dialog.showSaveDialog(mainWindow, {
     title: "导出HTML",
     defaultPath: app.getAppPath("desktop"),
-    filters: [
-      {
-        name: "HTML文件",
-        extensions: ["html"],
-      },
-    ],
+    filters: [{
+      name: "HTML文件",
+      extensions: ["html"],
+    }, ],
   });
 
   if (!savedHtmlFile) cb(false);
@@ -108,19 +129,20 @@ const saveHtmlFileFromUser = ({ file, content }, cb) => {
   cb(true);
 };
 
-const saveFileFromUser = ({ file, content }, cb) => {
+const saveFileFromUser = ({
+  file,
+  content
+}, cb) => {
   let savedFile = file;
 
   if (!savedFile) {
     savedFile = dialog.showSaveDialog(mainWindow, {
       title: "保存文件",
       defaultPath: app.getAppPath("desktop"),
-      filters: [
-        {
-          name: "Markdown文件",
-          extensions: ["md", "markdown"],
-        },
-      ],
+      filters: [{
+        name: "Markdown文件",
+        extensions: ["md", "markdown"],
+      }, ],
     });
   }
 
