@@ -47,7 +47,7 @@ exports.dispatch = (action) => {
 };
 
 const getFileFromUser = ({ properties, filters }, cb) => {
-  const files = dialog.showOpenDialog({
+  const files = dialog.showOpenDialog(mainWindow, {
     properties: properties || ["openFile"],
     filters: filters || [
       {
@@ -76,7 +76,7 @@ const getFileFromUser = ({ properties, filters }, cb) => {
 };
 
 const saveHtmlFileFromUser = ({ file, content }, cb) => {
-  let savedHtmlFile = dialog.showSaveDialog({
+  let savedHtmlFile = dialog.showSaveDialog(mainWindow, {
     title: "导出HTML",
     defaultPath: app.getAppPath("desktop"),
     filters: [
@@ -98,7 +98,7 @@ const saveFileFromUser = ({ file, content }, cb) => {
   let savedFile = file;
 
   if (!savedFile) {
-    savedFile = dialog.showSaveDialog({
+    savedFile = dialog.showSaveDialog(mainWindow, {
       title: "保存文件",
       defaultPath: app.getAppPath("desktop"),
       filters: [
