@@ -32,7 +32,7 @@ markdownView.addEventListener("keyup", (event) => {
 let filePath = null;
 let originalContent = "";
 
-saveMarkdownButton.addEventListener("click", () => {
+const saveMarkdownFile = () => {
   dispatchToMainProcess(
     "saveFile",
     {
@@ -51,9 +51,11 @@ saveMarkdownButton.addEventListener("click", () => {
       }
     }
   );
-});
+};
+saveMarkdownButton.addEventListener("click", saveMarkdownFile);
+ipcRenderer.on("menu-saveFile", saveMarkdownFile);
 
-saveHtmlButton.addEventListener("click", () => {
+const exportHtmlFile = () => {
   dispatchToMainProcess(
     "saveHtmlFile",
     {
@@ -62,9 +64,11 @@ saveHtmlButton.addEventListener("click", () => {
     },
     () => {}
   );
-});
+};
+saveHtmlButton.addEventListener("click", exportHtmlFile);
+ipcRenderer.on("menu-exportHtml", exportHtmlFile);
 
-newFileButton.addEventListener("click", () => {
+const newMarkdownFile = () => {
   filePath = null;
   originalContent = "";
   markdownView.value = "";
@@ -72,7 +76,9 @@ newFileButton.addEventListener("click", () => {
   renderMarkdownToHtml(originalContent);
 
   updateUserInterface();
-});
+};
+newFileButton.addEventListener("click", newMarkdownFile);
+ipcRenderer.on("menu-newFile", newMarkdownFile);
 
 const updateUserInterface = (isEdited) => {
   let title = "超级Markdown编辑器";
@@ -97,19 +103,26 @@ const updateUserInterface = (isEdited) => {
   openInDefaultButton.disabled = !filePath;
 };
 
-showFileButton.addEventListener("click", () => {
+const showFileFolder = () => {
   if (!filePath) return;
 
   shell.showItemInFolder(filePath);
-});
+};
+showFileButton.addEventListener("click", showFileFolder);
+ipcRenderer.on("menu-showFileFolder", showFileFolder);
 
-openInDefaultButton.addEventListener("click", () => {
+const openFileUsingDefaultApplication = () => {
   if (!filePath) return;
 
   shell.openItem(filePath);
-});
+};
+openInDefaultButton.addEventListener("click", openFileUsingDefaultApplication);
+ipcRenderer.on(
+  "menu-openFileDefaultApplication",
+  openFileUsingDefaultApplication
+);
 
-openFileButton.addEventListener("click", () => {
+const openMarkdownFile = () => {
   dispatchToMainProcess("openFile", {}, (file, content) => {
     if (file && content) {
       markdownView.value = content;
@@ -121,7 +134,9 @@ openFileButton.addEventListener("click", () => {
 
     updateUserInterface();
   });
-});
+};
+openFileButton.addEventListener("click", openMarkdownFile);
+ipcRenderer.on("menu-openFile", openMarkdownFile);
 
 const dispatchToMainProcess = (type, payload, cb) => {
   let replyTopic = type + "-reply";
