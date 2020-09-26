@@ -1,9 +1,12 @@
+const path = require('path')
 const {
   remote,
   ipcRenderer
 } = require('electron')
 
 const mainProcess = remote.require('./main.js')
+const currentWindow = remote.getCurrentWindow()
+
 const marked = require('marked');
 
 const markdownView = document.querySelector('#markdown');
@@ -25,14 +28,46 @@ const renderMarkdownToHtml = markdown => {
 markdownView.addEventListener('keyup', event => {
   const currentContent = event.target.value;
   renderMarkdownToHtml(currentContent);
+
+  updateUserInterface(currentContent !== originalContent)
 })
+
+let filePath = null
+let originalContent = ''
+
+const updateUserInterface = (isEdited) => {
+  let title = '超级Markdown编辑器'
+
+  if (filePath) {
+    title = `${path.basename(filePath)} - ${title}`
+
+    currentWindow.setRepresentedFilename(filePath)
+  }
+
+  if (isEdited) {
+    title = `${title} *`
+  }
+
+  currentWindow.setTitle(title)
+  currentWindow.setDocumentEdited(isEdited || false)
+
+  saveMarkdownButton.disabled = !isEdited
+  revertButton.disabled = !isEdited
+}
+
+updateUserInterface()
 
 openFileButton.addEventListener('click', () => {
   dispatchToMainProcess('openFile', {}, (file, content) => {
     if (file && content) {
       markdownView.value = content
       renderMarkdownToHtml(content)
+
+      filePath = file
+      originalContent = content
     }
+
+    updateUserInterface()
   })
 })
 

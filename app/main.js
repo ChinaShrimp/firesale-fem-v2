@@ -73,5 +73,7 @@ const getFileFromUser = ({
     let file = files[0]
     const content = fs.readFileSync(file).toString()
 
+    app.addRecentDocument(file)
+
     cb(file, content)
 }
