@@ -11,6 +11,7 @@
     "babel-eslint": "^7.1.1",
     "devtron": "^1.4.0",
     "electron-packager": "^8.3.0",
+    "electron-rebuild": "^2.0.3",
     "eslint": "^3.11.0",
     "eslint-plugin-import": "^2.2.0"
   },
@@ -29,5 +30,6 @@
   "bugs": {
     "url": "https://github.com/electron-in-action/firesale/issues"
   },
-  "homepage": "https://github.com/electron-in-action/firesale#readme"
+  "homepage": "https://github.com/electron-in-action/firesale#readme",
+  "__npminstall_done": false
 }
