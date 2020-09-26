@@ -1,8 +1,5 @@
 const path = require("path");
-const {
-  remote,
-  ipcRenderer
-} = require("electron");
+const { remote, ipcRenderer } = require("electron");
 
 const mainProcess = remote.require("./main.js");
 const currentWindow = remote.getCurrentWindow();
@@ -37,7 +34,8 @@ let originalContent = "";
 
 saveMarkdownButton.addEventListener("click", () => {
   dispatchToMainProcess(
-    "saveFile", {
+    "saveFile",
+    {
       file: filePath,
       content: markdownView.value,
     },
@@ -53,6 +51,27 @@ saveMarkdownButton.addEventListener("click", () => {
       }
     }
   );
+});
+
+saveHtmlButton.addEventListener("click", () => {
+  dispatchToMainProcess(
+    "saveHtmlFile",
+    {
+      file: filePath,
+      content: htmlView.innerHTML,
+    },
+    () => {}
+  );
+});
+
+newFileButton.addEventListener("click", () => {
+  filePath = null;
+  originalContent = "";
+  markdownView.value = "";
+
+  renderMarkdownToHtml(originalContent);
+
+  updateUserInterface();
 });
 
 const updateUserInterface = (isEdited) => {

@@ -1,109 +1,120 @@
-const fs = require('fs')
-const {
-    app,
-    BrowserWindow,
-    dialog
-} = require('electron')
+const fs = require("fs");
+const { app, BrowserWindow, dialog } = require("electron");
 
-let mainWindow = null
+let mainWindow = null;
 
-app.on('ready', () => {
-    mainWindow = new BrowserWindow({
-        show: false
-    })
+app.on("ready", () => {
+  mainWindow = new BrowserWindow({
+    show: false,
+  });
 
-    mainWindow.loadFile(`${__dirname}/index.html`)
+  mainWindow.loadFile(`${__dirname}/index.html`);
 
-    mainWindow.once('ready-to-show', () => {
-        mainWindow.show()
-    })
-})
+  mainWindow.once("ready-to-show", () => {
+    mainWindow.show();
+  });
+});
 
-console.log('Starting up...')
+console.log("Starting up...");
 
 exports.dispatch = (action) => {
-    const {
-        type,
-        payload
-    } = action
-    const {
-        replyTopic
-    } = payload;
-    const result = null;
+  const { type, payload } = action;
+  const { replyTopic } = payload;
+  const result = null;
 
-    const cb = (...args) => {
-        if (replyTopic) {
-            mainWindow.webContents.send(replyTopic, ...args)
-        }
+  const cb = (...args) => {
+    if (replyTopic) {
+      mainWindow.webContents.send(replyTopic, ...args);
     }
+  };
 
-    switch (type) {
-        case 'openFile':
-            result = getFileFromUser(payload, cb)
-            break
+  switch (type) {
+    case "openFile":
+      result = getFileFromUser(payload, cb);
+      break;
 
-        case 'saveFile':
-            saveFileFromUser(payload, cb)
-            break
+    case "saveFile":
+      saveFileFromUser(payload, cb);
+      break;
 
-        default:
-            console.log("Unsupported Action Type")
-    }
-}
+    case "saveHtmlFile":
+      saveHtmlFileFromUser(payload, cb);
+      break;
 
-const getFileFromUser = ({
-    properties,
-    filters
-}, cb) => {
-    const files = dialog.showOpenDialog({
-        properties: properties || ['openFile'],
-        filters: filters || [{
-                name: "Markdown Files",
-                extensions: ['md', 'markdown']
-            },
-            {
-                name: 'Text Files',
-                extensions: ['text', 'txt']
-            },
-            {
-                name: 'JSON Files',
-                extensions: ['json']
-            }
-        ]
-    })
+    default:
+      console.log("Unsupported Action Type");
+  }
+};
 
-    if (!files) cb()
+const getFileFromUser = ({ properties, filters }, cb) => {
+  const files = dialog.showOpenDialog({
+    properties: properties || ["openFile"],
+    filters: filters || [
+      {
+        name: "Markdown Files",
+        extensions: ["md", "markdown"],
+      },
+      {
+        name: "Text Files",
+        extensions: ["text", "txt"],
+      },
+      {
+        name: "JSON Files",
+        extensions: ["json"],
+      },
+    ],
+  });
 
-    let file = files[0]
-    const content = fs.readFileSync(file).toString()
+  if (!files) cb();
 
-    app.addRecentDocument(file)
+  let file = files[0];
+  const content = fs.readFileSync(file).toString();
 
-    cb(file, content)
-}
+  app.addRecentDocument(file);
 
-const saveFileFromUser = ({
-    file,
-    content
-}, cb) => {
-    let savedFile = file
+  cb(file, content);
+};
 
-    if (!savedFile) {
-        savedFile = dialog.showSaveDialog({
-            title: "保存文件",
-            defaultPath: app.getAppPath('desktop'),
-            filters: [{
-                name: "Markdown文件",
-                extensions: ['md', 'markdown']
-            }]
-        })
-    }
+const saveHtmlFileFromUser = ({ file, content }, cb) => {
+  let savedHtmlFile = dialog.showSaveDialog({
+    title: "导出HTML",
+    defaultPath: app.getAppPath("desktop"),
+    filters: [
+      {
+        name: "HTML文件",
+        extensions: ["html"],
+      },
+    ],
+  });
 
-    if (!savedFile) {
-        cb(false, null)
-    }
+  if (!savedHtmlFile) cb(false);
 
-    fs.writeFileSync(savedFile, content)
+  fs.writeFileSync(savedHtmlFile, content);
 
-    cb(true, savedFile)
-}
+  cb(true);
+};
+
+const saveFileFromUser = ({ file, content }, cb) => {
+  let savedFile = file;
+
+  if (!savedFile) {
+    savedFile = dialog.showSaveDialog({
+      title: "保存文件",
+      defaultPath: app.getAppPath("desktop"),
+      filters: [
+        {
+          name: "Markdown文件",
+          extensions: ["md", "markdown"],
+        },
+      ],
+    });
+  }
+
+  if (!savedFile) {
+    cb(false, null);
+  }
+
+  fs.writeFileSync(savedFile, content);
+
+  cb(true, savedFile);
+};
