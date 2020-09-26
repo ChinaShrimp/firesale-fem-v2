@@ -127,3 +127,63 @@ const dispatchToMainProcess = (type, payload, cb) => {
 };
 
 updateUserInterface();
+
+document.addEventListener("dragstart", (ev) => ev.preventDefault());
+document.addEventListener("dragover", (ev) => ev.preventDefault());
+document.addEventListener("dragleave", (ev) => ev.preventDefault());
+document.addEventListener("drop", (ev) => ev.preventDefault());
+
+const getDraggedFile = (ev) => ev.dataTransfer.items[0];
+const getDroppedFile = (ev) => ev.dataTransfer.files[0];
+const fileTypeIsSupported = (file) => {
+  return ["text/plain", "text/markdown"].includes(file.type);
+};
+
+markdownView.addEventListener("dragover", (ev) => {
+  let file = getDraggedFile(ev);
+
+  if (fileTypeIsSupported(file)) {
+    markdownView.classList.add("drag-over");
+  } else {
+    markdownView.classList.add("drag-error");
+  }
+});
+
+markdownView.addEventListener("dragleave", (ev) => {
+  let file = getDraggedFile(ev);
+
+  if (fileTypeIsSupported(file)) {
+    markdownView.classList.remove("drag-over");
+  } else {
+    markdownView.classList.remove("drag-error");
+  }
+});
+
+markdownView.addEventListener("drop", (ev) => {
+  let file = getDroppedFile(ev);
+
+  if (fileTypeIsSupported(file)) {
+    markdownView.classList.remove("drag-over");
+
+    dispatchToMainProcess(
+      "openSpecifiedFile",
+      {
+        file: file.path,
+      },
+      (file, content) => {
+        if (file && content) {
+          markdownView.value = content;
+          renderMarkdownToHtml(content);
+
+          filePath = file;
+          originalContent = content;
+        }
+
+        updateUserInterface();
+      }
+    );
+  } else {
+    markdownView.classList.remove("drag-error");
+    alert("文件类型不支持");
+  }
+});

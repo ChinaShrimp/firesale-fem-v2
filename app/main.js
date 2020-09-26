@@ -41,6 +41,10 @@ exports.dispatch = (action) => {
       saveHtmlFileFromUser(payload, cb);
       break;
 
+    case "openSpecifiedFile":
+      result = openFileFromUser(payload, cb);
+      break;
+
     default:
       console.log("Unsupported Action Type");
   }
@@ -68,6 +72,16 @@ const getFileFromUser = ({ properties, filters }, cb) => {
   if (!files) cb();
 
   let file = files[0];
+  const content = fs.readFileSync(file).toString();
+
+  app.addRecentDocument(file);
+
+  cb(file, content);
+};
+
+const openFileFromUser = ({ file }, cb) => {
+  if (!file) cb();
+
   const content = fs.readFileSync(file).toString();
 
   app.addRecentDocument(file);
