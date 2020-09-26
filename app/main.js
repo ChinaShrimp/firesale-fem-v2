@@ -42,6 +42,10 @@ exports.dispatch = (action) => {
             result = getFileFromUser(payload, cb)
             break
 
+        case 'saveFile':
+            saveFileFromUser(payload, cb)
+            break
+
         default:
             console.log("Unsupported Action Type")
     }
@@ -76,4 +80,30 @@ const getFileFromUser = ({
     app.addRecentDocument(file)
 
     cb(file, content)
+}
+
+const saveFileFromUser = ({
+    file,
+    content
+}, cb) => {
+    let savedFile = file
+
+    if (!savedFile) {
+        savedFile = dialog.showSaveDialog({
+            title: "保存文件",
+            defaultPath: app.getAppPath('desktop'),
+            filters: [{
+                name: "Markdown文件",
+                extensions: ['md', 'markdown']
+            }]
+        })
+    }
+
+    if (!savedFile) {
+        cb(false, null)
+    }
+
+    fs.writeFileSync(savedFile, content)
+
+    cb(true, savedFile)
 }
